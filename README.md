@@ -1,26 +1,76 @@
-import requests
-from requests.auth import HTTPBasicAuth
+# EspoCRM Contact Relational Dashboard
 
-url = "http://localhost:8081/api/v1/Contact"
+Project ini merupakan implementasi **Task 4 — Relational Data EspoCRM**, yang menampilkan data **Contact** beserta relasinya dengan **Account, Opportunity, dan Case** menggunakan **Python, Tkinter, dan EspoCRM REST API**.
 
-response = requests.get(
-    url,
-    auth=HTTPBasicAuth("admin", "admin123")
-)
+## Cara Menjalankan
 
-response.raise_for_status()
+### 1. Clone Repository
 
-data = response.json()
+```bash
+git clone https://github.com/arya-iky/espo-api-python-contact.git
+cd espo-api-python-contact
+```
 
-print("=" * 50)
-print("      DATA CONTACT ESPOCRM")
-print("=" * 50)
-print(f"Jumlah Contact : {data['total']}")
-print()
+### 2. Install Dependency
 
-for i, contact in enumerate(data["list"], start=1):
-    print(f"Contact #{i}")
-    print(f"Nama   : {contact['name']}")
-    print(f"Email  : {contact['emailAddress']}")
-    print(f"Telepon: {contact['phoneNumber']}")
-    print("-" * 50)
+Pastikan Python sudah terpasang, lalu jalankan:
+
+```bash
+pip install -r requirements
+```
+
+### 3. Konfigurasi EspoCRM
+
+Salin `config_example.py` menjadi `config.py`:
+
+```bash
+copy config_example.py config.py
+```
+
+Kemudian buka `config.py` dan sesuaikan konfigurasi EspoCRM:
+
+```python
+BASE_URL = "http://localhost:8081/api/v1"
+
+USERNAME = "admin"
+PASSWORD = "admin123"
+```
+
+Pastikan **EspoCRM sedang berjalan** pada:
+
+```text
+http://localhost:8081
+```
+
+### 4. Jalankan Aplikasi
+
+```bash
+python main.py
+```
+
+Dashboard Contact akan terbuka menggunakan Tkinter.
+
+### 5. Fitur Utama
+
+Aplikasi menyediakan:
+
+* Menampilkan daftar Contact
+* Search Contact
+* Pagination
+* Detail Contact
+* Relasi Account
+* Relasi Opportunity
+* Relasi Case
+* Search Relationship
+* Add Contact
+* Edit Contact
+* Delete Contact
+* Restore Contact
+* Export CSV
+* Refresh Data
+
+Repository:
+
+```text
+https://github.com/arya-iky/espo-api-python-contact
+```
