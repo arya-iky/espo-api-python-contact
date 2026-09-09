@@ -17,6 +17,7 @@ CONTACT
 - Restore / Undo Delete
 - Export CSV
 - Refresh Data
+- Generate Test Data
 
 RELATIONSHIP
 - Contact
@@ -230,6 +231,8 @@ class Dashboard:
         self._loading = False
 
         self._closing = False
+
+        self._generating_test_data = False
 
         # ====================================================
         # BUILD
@@ -649,6 +652,12 @@ class Dashboard:
             side,
             "+   Add Contact",
             self.action_add
+        )
+
+        self.nav_button(
+            side,
+            "⚙   Generate Test Data",
+            self.action_generate_test_data
         )
 
         self.nav_button(
@@ -1572,6 +1581,16 @@ class Dashboard:
             text="+ Add Contact",
             style="Primary.TButton",
             command=self.action_add
+        ).pack(
+            side="left",
+            padx=4
+        )
+
+        ttk.Button(
+            bar,
+            text="⚙ Generate Test Data",
+            style="Secondary.TButton",
+            command=self.action_generate_test_data
         ).pack(
             side="left",
             padx=4
@@ -3660,6 +3679,395 @@ class Dashboard:
                     "Add Contact Error",
                     str(exc)
                 )
+
+    # ========================================================
+    # GENERATE TEST DATA
+    # ========================================================
+
+    def action_generate_test_data(
+        self
+    ):
+        if self._generating_test_data:
+            return
+
+        generator = getattr(
+            api,
+            "generate_test_contacts",
+            None
+        )
+
+        if generator is None:
+            messagebox.showerror(
+                "Generate Test Data",
+                "Fungsi generate_test_contacts() "
+                "tidak ditemukan di api.py."
+            )
+            return
+
+        dialog = tk.Toplevel(
+            self.root
+        )
+
+        dialog.title(
+            "Generate Test Data"
+        )
+
+        dialog.geometry(
+            "500x360"
+        )
+
+        dialog.resizable(
+            False,
+            False
+        )
+
+        dialog.configure(
+            bg=self.WHITE
+        )
+
+        dialog.transient(
+            self.root
+        )
+
+        dialog.grab_set()
+
+        self.center_child_window(
+            dialog,
+            500,
+            360
+        )
+
+        title_frame = tk.Frame(
+            dialog,
+            bg=self.WHITE
+        )
+
+        title_frame.pack(
+            fill="x",
+            padx=28,
+            pady=(24, 8)
+        )
+
+        tk.Label(
+            title_frame,
+            text="Generate Test Data",
+            bg=self.WHITE,
+            fg=self.TEXT,
+            font=("Segoe UI", 18, "bold")
+        ).pack(
+            anchor="w"
+        )
+
+        tk.Label(
+            title_frame,
+            text="Buat Contact dummy untuk menguji pagination "
+                 "dan relationship.",
+            bg=self.WHITE,
+            fg=self.MUTED,
+            font=("Segoe UI", 9),
+            wraplength=430,
+            justify="left"
+        ).pack(
+            anchor="w",
+            pady=(5, 0)
+        )
+
+        body = tk.Frame(
+            dialog,
+            bg=self.WHITE
+        )
+
+        body.pack(
+            fill="both",
+            expand=True,
+            padx=28,
+            pady=10
+        )
+
+        tk.Label(
+            body,
+            text="Jumlah Contact",
+            bg=self.WHITE,
+            fg=self.TEXT,
+            font=("Segoe UI", 10, "bold")
+        ).pack(
+            anchor="w"
+        )
+
+        count_var = tk.StringVar(
+            value="25"
+        )
+
+        count_entry = tk.Entry(
+            body,
+            textvariable=count_var,
+            bg="#F8FAFC",
+            fg=self.TEXT,
+            relief="solid",
+            bd=1,
+            font=("Segoe UI", 11)
+        )
+
+        count_entry.pack(
+            fill="x",
+            pady=(7, 10),
+            ipady=7
+        )
+
+        tk.Label(
+            body,
+            text=(
+                "Komposisi data:\n"
+                "70% lengkap\n"
+                "20% incomplete\n"
+                "10% sangat minim\n\n"
+                "Field wajib Contact tetap dibuat valid. "
+                "Relationship ke Account, Opportunity, dan Case "
+                "akan menggunakan data yang sudah tersedia."
+            ),
+            bg=self.WHITE,
+            fg=self.MUTED,
+            font=("Segoe UI", 9),
+            justify="left",
+            wraplength=430
+        ).pack(
+            anchor="w"
+        )
+
+        button_frame = tk.Frame(
+            dialog,
+            bg=self.WHITE
+        )
+
+        button_frame.pack(
+            fill="x",
+            padx=28,
+            pady=(5, 24)
+        )
+
+        def close_dialog():
+            try:
+                dialog.grab_release()
+            except Exception:
+                pass
+            dialog.destroy()
+
+        def start_generation():
+            raw_count = count_var.get().strip()
+
+            try:
+                count = int(raw_count)
+            except ValueError:
+                messagebox.showwarning(
+                    "Jumlah Tidak Valid",
+                    "Jumlah Contact harus berupa angka.",
+                    parent=dialog
+                )
+                count_entry.focus_set()
+                count_entry.select_range(0, "end")
+                return
+
+            if count < 1 or count > 500:
+                messagebox.showwarning(
+                    "Jumlah Tidak Valid",
+                    "Jumlah Contact harus berada antara 1 sampai 500.",
+                    parent=dialog
+                )
+                count_entry.focus_set()
+                count_entry.select_range(0, "end")
+                return
+
+            if count >= 50:
+                confirmed = messagebox.askyesno(
+                    "Konfirmasi Generate",
+                    f"Anda akan membuat {count} Contact.\n\n"
+                    "Proses ini dapat membutuhkan beberapa saat.\n"
+                    "Lanjutkan?",
+                    parent=dialog
+                )
+                if not confirmed:
+                    return
+
+            self._generating_test_data = True
+
+            generate_button.config(
+                state="disabled",
+                text="Generating..."
+            )
+
+            cancel_button.config(
+                state="disabled"
+            )
+
+            self.api_status.config(
+                text="● Generating Test Data...",
+                fg=self.ORANGE
+            )
+
+            self.root.update_idletasks()
+
+            try:
+                result = generator(
+                    count=count,
+                    link_relationships=True
+                )
+
+                if not isinstance(result, dict):
+                    raise RuntimeError(
+                        "Response generator tidak valid."
+                    )
+
+                requested = result.get("requested", count)
+                created_count = result.get("created_count", 0)
+                failed_count = result.get("failed_count", 0)
+
+                relationships = result.get("relationships", {})
+                if not isinstance(relationships, dict):
+                    relationships = {}
+
+                accounts_created = relationships.get("accounts", 0)
+                opportunities_created = relationships.get("opportunities", 0)
+                cases_created = relationships.get("cases", 0)
+
+                self.current_contact = None
+                self.current_relation = None
+                self.relation_cache = {}
+                self._clear_contact_search()
+
+                close_dialog()
+                self.load_data()
+
+                if failed_count:
+                    messagebox.showwarning(
+                        "Generate Selesai",
+                        "Proses Generate Test Data selesai.\n\n"
+                        f"Diminta: {requested}\n"
+                        f"Berhasil dibuat: {created_count}\n"
+                        f"Gagal dibuat: {failed_count}\n\n"
+                        "Relationship yang berhasil dibuat:\n"
+                        f"Accounts: {accounts_created}\n"
+                        f"Opportunities: {opportunities_created}\n"
+                        f"Cases: {cases_created}",
+                        parent=self.root
+                    )
+                else:
+                    messagebox.showinfo(
+                        "Generate Berhasil",
+                        "Test Data berhasil dibuat.\n\n"
+                        f"Contact dibuat: {created_count}\n\n"
+                        "Relationship yang berhasil dibuat:\n"
+                        f"Accounts: {accounts_created}\n"
+                        f"Opportunities: {opportunities_created}\n"
+                        f"Cases: {cases_created}",
+                        parent=self.root
+                    )
+
+            except Exception as exc:
+                self.api_status.config(
+                    text="● Connected",
+                    fg=self.GREEN
+                )
+
+                messagebox.showerror(
+                    "Generate Error",
+                    "Gagal membuat Test Data.\n\n"
+                    f"{exc}",
+                    parent=dialog
+                )
+
+                generate_button.config(
+                    state="normal",
+                    text="Generate"
+                )
+
+                cancel_button.config(
+                    state="normal"
+                )
+
+            finally:
+                self._generating_test_data = False
+
+        cancel_button = ttk.Button(
+            button_frame,
+            text="Cancel",
+            style="Secondary.TButton",
+            command=close_dialog
+        )
+
+        cancel_button.pack(
+            side="right"
+        )
+
+        generate_button = ttk.Button(
+            button_frame,
+            text="Generate",
+            style="Primary.TButton",
+            command=start_generation
+        )
+
+        generate_button.pack(
+            side="right",
+            padx=(0, 8)
+        )
+
+        count_entry.bind(
+            "<Return>",
+            lambda event: start_generation()
+        )
+
+        count_entry.focus_set()
+
+        dialog.protocol(
+            "WM_DELETE_WINDOW",
+            close_dialog
+        )
+
+    # ========================================================
+    # CHILD WINDOW CENTER
+    # ========================================================
+
+    def center_child_window(
+        self,
+        window,
+        width,
+        height
+    ):
+        window.update_idletasks()
+
+        parent_x = self.root.winfo_rootx()
+        parent_y = self.root.winfo_rooty()
+        parent_width = self.root.winfo_width()
+        parent_height = self.root.winfo_height()
+
+        x = parent_x + max((parent_width - width) // 2, 0)
+        y = parent_y + max((parent_height - height) // 2, 0)
+
+        window.geometry(
+            f"{width}x{height}+{x}+{y}"
+        )
+
+    # ========================================================
+    # CLEAR CONTACT SEARCH
+    # ========================================================
+
+    def _clear_contact_search(
+        self
+    ):
+        if not hasattr(self, "search_entry"):
+            return
+
+        if self.search_after_id:
+            try:
+                self.root.after_cancel(self.search_after_id)
+            except Exception:
+                pass
+            self.search_after_id = None
+
+        self.search_entry.delete(0, "end")
+        self.search_entry.insert(0, self.search_placeholder)
+        self.search_entry.config(fg="#94A3B8")
+        self.current_offset = 0
+        self.current_page = 1
 
     # ========================================================
     # EDIT CONTACT

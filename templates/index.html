@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESPOCRM — Contact Atelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="font-jakarta">
+<div id="app" class="app">
+  <section id="landing" class="screen landing-screen active">
+    <aside class="landing-side">
+      <div class="brand-lockup"><div class="brand-mark">E</div><div><div class="brand-name">EspoCRM</div><div class="brand-sub">RELATIONAL DATA</div></div></div>
+      <div class="side-rule"></div>
+      <nav class="landing-nav">
+        <button class="landing-link active" data-action="start"><span>01</span><b data-i18n="start">Mulai</b></button>
+        <button class="landing-link" data-action="settings"><span>02</span><b data-i18n="settings">Setting</b></button>
+      </nav>
+      <div class="landing-footer"><div class="status-line"><i id="status-dot"></i><span id="status-text">CONNECTING</span></div><small>PYTHON / ESPOCRM</small></div>
+    </aside>
+    <div class="landing-visual">
+      <div class="office-photo"></div><div class="office-overlay"></div><div class="grain"></div>
+      <div class="landing-copy">
+        <div class="eyebrow">RELATIONAL CONTACT MANAGEMENT</div>
+        <h1>Read the relationship,<br><em>not the noise.</em></h1>
+        <p>Temukan Contact, lihat kelengkapan data, lalu telusuri Account, Opportunity, dan Case tanpa kehilangan konteks.</p>
+        <button id="begin-button" class="editorial-button"><span data-i18n="begin">Mulai</span><span>↗</span></button>
+      </div>
+      <div class="visual-index">01 / ESPoCRM CONTACT ATELIER</div>
+    </div>
+  </section>
+
+  <section id="settings" class="screen settings-screen">
+    <div class="minimal-top"><button class="back-link" id="settings-back">← <span data-i18n="back">Kembali</span></button><div class="mini-brand">ESPOCRM / SETTINGS</div></div>
+    <div class="settings-wrap"><div><div class="eyebrow brown">SETTINGS</div><h2 data-i18n="settingsTitle">Atelier Settings</h2><p class="lead" data-i18n="settingsIntro">Atur bahasa, suara, dan karakter tipografi aplikasi.</p></div>
+      <div class="settings-grid">
+        <div class="setting-card"><span class="setting-kicker">01</span><h3 data-i18n="language">Bahasa</h3><p data-i18n="languageHelp">Ubah bahasa interface secara global.</p><div class="segmented"><button class="setting-option" data-setting="language" data-value="id">Indonesia</button><button class="setting-option" data-setting="language" data-value="en">English</button></div></div>
+        <div class="setting-card"><span class="setting-kicker">02</span><h3 data-i18n="font">Font</h3><p data-i18n="fontHelp">Pilih karakter tipografi yang dipakai seluruh aplikasi.</p><div class="font-options"><button class="setting-option" data-setting="font" data-value="jakarta">Plus Jakarta Sans</button><button class="setting-option" data-setting="font" data-value="playfair">Playfair Display</button><button class="setting-option" data-setting="font" data-value="times">Times New Roman</button></div></div>
+        <div class="setting-card"><span class="setting-kicker">03</span><h3 data-i18n="sound">Sound Effects</h3><p data-i18n="soundHelp">Micro interaction suara yang sangat ringan.</p><div class="segmented"><button class="setting-option" data-setting="sound" data-value="on">ON</button><button class="setting-option" data-setting="sound" data-value="off">OFF</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="main" class="screen main-screen">
+    <aside class="app-sidebar">
+      <div class="app-side-head"><div class="brand-mark dark">E</div><div><div class="brand-name">EspoCRM</div><div class="brand-sub">CONTACT ATELIER</div></div></div>
+      <nav class="app-nav">
+        <button class="app-nav-link active" data-view="home">01 <span data-i18n="home">Beranda</span></button>
+        <button class="app-nav-link" data-view="contacts">02 <span data-i18n="contacts">Contacts</span></button>
+        <button class="app-nav-link" data-view="settings">03 <span data-i18n="settings">Setting</span></button>
+      </nav>
+      <div class="app-side-bottom"><button id="refresh-main">↻ <span data-i18n="refresh">Refresh</span></button><button id="exit-main">× <span data-i18n="exit">Keluar</span></button></div>
+    </aside>
+    <main class="workspace">
+      <div id="view-home" class="view active">
+        <header class="main-head"><div><div class="eyebrow brown">DASHBOARD / OVERVIEW</div><h2>Relational <em>Overview</em></h2><p data-i18n="dashboardText">Baca kondisi data CRM dalam satu pandangan.</p></div><div class="head-stats"><span id="home-health">LIVE</span><small>API</small></div></header>
+        <div class="dashboard-grid">
+          <article class="hero-stat wide"><span>CONTACTS</span><strong id="stat-contacts">—</strong><p data-i18n="contactsStored">Total Contact tersimpan.</p></article>
+          <article class="hero-stat"><span>ACCOUNTS</span><strong id="stat-accounts">—</strong><p>Company records.</p></article>
+          <article class="hero-stat"><span>OPPORTUNITIES</span><strong id="stat-opportunities">—</strong><p>Potential business.</p></article>
+          <article class="hero-stat"><span>CASES</span><strong id="stat-cases">—</strong><p>Open service context.</p></article>
+          <article class="dash-panel tall"><div class="panel-head"><span>READING METHOD</span><span>05</span></div><h3>Reduce the noise,<br><em>keep the relation.</em></h3><p data-i18n="methodText">Data besar dibaca melalui pagination, pencarian bertahap, dan relationship hanya saat diperlukan.</p></article>
+          <article class="dash-panel"><div class="panel-head"><span>DATA QUALITY</span><span>06</span></div><div class="quality-lines"><div><i class="dot complete"></i><span>Complete</span><b id="quality-complete">—</b></div><div><i class="dot partial"></i><span>Kurang lengkap</span><b id="quality-partial">—</b></div><div><i class="dot minimal"></i><span>Tidak komplet</span><b id="quality-minimal">—</b></div></div></article>
+          <article class="dash-panel"><div class="panel-head"><span>RELATIONSHIP</span><span>07</span></div><h3>Contact → Account → Opportunity → Case</h3><p>One contact, multiple context.</p></article>
+          <article class="dash-panel action-panel"><div><div class="panel-head"><span>DIRECTORY</span><span>08</span></div><h3 data-i18n="openDirectory">Buka Contact Directory</h3></div><button class="editorial-button dark" id="home-open-contacts">Open ↗</button></article>
+        </div>
+      </div>
+
+      <div id="view-contacts" class="view">
+        <header class="main-head"><div><div class="eyebrow brown">CONTACT DIRECTORY</div><h2>Find the <em>right five.</em></h2><p data-i18n="contactIntro">Contact dikelompokkan lima-lima berdasarkan kualitas datanya.</p></div><div class="directory-actions"><button class="ghost" id="contacts-refresh" data-i18n="refresh">Refresh</button><button class="solid" id="generate-button" data-i18n="generate">Generate Data</button></div></header>
+        <div class="directory-tools"><input id="contact-search" type="search" placeholder="Search Contact..." autocomplete="off"><button id="search-clear">×</button><div class="pager"><button id="prev-page">←</button><span id="page-indicator">1 / 1</span><button id="next-page">→</button></div></div>
+        <div id="category-shelf" class="category-shelf"></div>
+        <div id="group-panel" class="group-panel hidden"><div class="panel-title"><button id="back-categories">← <span data-i18n="allCategories">Semua kategori</span></button><div id="group-title"></div></div><div id="group-grid" class="group-grid"></div></div>
+      </div>
+    </main>
+    <section id="contact-drawer" class="contact-drawer" aria-hidden="true"><div class="drawer-grip"></div><button class="drawer-close" id="drawer-close">×</button><div id="drawer-content"></div></section>
+  </section>
+</div>
+<dialog id="generate-modal"><div class="modal-title"><div class="eyebrow brown">TEST DATA</div><h3 data-i18n="generateTitle">Generate Contacts</h3></div><p data-i18n="generateHelp">Buat Contact dummy tambahan untuk pagination dan performance testing.</p><label data-i18n="quantity">Jumlah</label><input id="generate-count" type="number" min="1" max="500" value="25"><div id="generate-error" class="modal-error"></div><div class="modal-actions"><button id="generate-cancel" class="ghost" data-i18n="cancel">Batal</button><button id="generate-confirm" class="solid" data-i18n="generate">Generate</button></div></dialog>
+<div id="toast"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body></html>
