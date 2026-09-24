@@ -75,13 +75,6 @@
 @media(max-width:1100px){.urgent-workbench{grid-template-columns:1fr}.urgent-detail-card{min-height:300px}.urgent-wheel{width:min(590px,86vw)}}
 @media(max-width:700px){.urgent-wheel{width:92vw}.urgent-wheel-card{width:145px;min-height:120px}.urgent-wheel-center{width:170px}.urgent-page-arrow.left{margin-left:-128px}.urgent-page-arrow.right{margin-right:-128px}.urgent-wheel-shell{min-height:560px}}
 
-/* V32.1 Contact filter dropdown layering fix */
-.directory-header{position:relative;z-index:20}
-.directory-header .directory-actions{position:relative;z-index:30}
-.directory-header .contact-mode-wrap{position:relative;z-index:40}
-.directory-header .contact-mode-menu{z-index:1000}
-.view-contacts .directory-tools{position:relative;z-index:1}
-
 /* V29 Contact Directory action alignment */
 .directory-header .directory-actions{display:flex;align-items:flex-end;gap:10px;flex-wrap:nowrap}
 .directory-header .directory-actions>.ghost-btn,.directory-header .directory-actions>.danger-btn{width:132px;min-width:132px;height:52px;min-height:52px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}

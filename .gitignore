@@ -1,7 +1,23 @@
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Virtual environment
+.venv/
+.venv-*/
+venv/
+
+# Environment / secrets
 .env
-config.py
-dashboard.zip
+*.env
+testumbrella.env
+
+# Accurate local credentials / debug
+accurate_token.json
+accurate_connection.json
+accurate_sync.json
+accurate_oauth_debug.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# IDE
+.vscode/
+.idea/
