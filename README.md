@@ -1,34 +1,68 @@
-EspoCRM Relational Data Dashboard & Accurate Online Integration
+EspoCRM Relational Data Dashboard
 
-Aplikasi web berbasis Python yang mengambil data dari EspoCRM melalui REST API, menampilkan data CRM dalam dashboard web, menyediakan pengelolaan dan analitik data berukuran besar, serta mengintegrasikan Opportunity tertentu ke Accurate Online.
+Flask + EspoCRM REST API + Accurate Online
 
-Catatan: versi project ini sudah berbeda dari versi awal yang hanya berfokus pada Contact Manager/Tkinter. Versi sekarang menggunakan Flask + HTML/CSS/JavaScript dan berfokus pada data relasional, dashboard, dataset besar, serta integrasi Accurate.
+Prototype aplikasi CRM untuk mengelola data relasional dalam jumlah besar, menyediakan dashboard & analytics, serta mengintegrasikan Opportunity Closed Won → Accurate Online Sales Invoice.
 
-1. Gambaran Project
+ Highlights
 
-Project ini dibuat untuk menangani kondisi CRM dengan jumlah data besar, ketika data Account, Contact, Opportunity, Task, PIC/User, dan Case sudah banyak sehingga pencarian, pembacaan, dan pemantauan menjadi lebih sulit.
+ CRM Dashboard — Account, Contact, Opportunity, Task, Case, dan PIC/User
 
-Aplikasi menyediakan lapisan Python yang berkomunikasi dengan EspoCRM dan web interface untuk:
+ Search / Sort / Filter — server-side
 
-menampilkan ringkasan data CRM;
+ Server-side Pagination — browser tidak memuat seluruh 10.000+ record
 
-menampilkan tabel data dengan pagination di server;
+ Relationship Explorer — melihat relasi antar entity
 
-melakukan search, sort, dan filter pada data besar;
+ Contact Data Quality — memantau kelengkapan data
 
-melihat detail dan relasi Opportunity;
+ Analytics — pipeline, workload PIC, Task, overdue Task, dan Case
+ 
+ Large Dataset Generator — pengujian skala besar
+ 
+ Accurate Integration — Closed Won → Sales Invoice
+ 
+ Idempotency — mencegah transaksi duplikat
+ 
+ Create / Update Sync — update transaksi yang sudah tersinkron
+ 
+ Sync State & Error Tracking
+ 
+ Architecture
 
-memantau kualitas/kelengkapan data Contact;
+┌───────────────────────┐
+│       Browser         │
+│   HTML / CSS / JS     │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│      Flask App        │
+│      web_app.py       │
+└───────┬─────────┬─────┘
+        │         │
+        ▼         ▼
+┌────────────┐  ┌────────────────┐
+│ EspoCRM    │  │ Accurate Online│
+│ REST API   │  │ OAuth / API    │
+└────────────┘  └────────────────┘
+        │
+        ▼
+┌───────────────────────┐
+│ SQLite Local Store    │
+│ sync / job / state    │
+└───────────────────────┘
 
-menjalankan analitik workload PIC, status Opportunity, status Task, overdue Task, dan data terkait lainnya;
+Relasi data
 
-membuat dataset besar untuk pengujian;
+Account
+├── Contact
+│   └── Opportunity
+│       └── Task ── User / PIC
+└── Opportunity
+    └── Task
 
-melakukan sinkronisasi Opportunity Closed Won ke Accurate Online;
-
-mencatat status sinkronisasi dan mencegah pembuatan transaksi duplikat.
-
-2. Teknologi
+ Tech Stack
 
 Backend
 
@@ -40,7 +74,7 @@ Requests
 
 python-dotenv
 
-SQLite untuk local application store
+SQLite
 
 Frontend
 
@@ -50,43 +84,13 @@ CSS
 
 JavaScript
 
-Sistem eksternal
+External Services
 
 EspoCRM REST API
 
 Accurate Online API / OAuth
 
-3. Entity yang Digunakan
-
-Project bekerja dengan beberapa entity CRM:
-
-Account — data perusahaan/customer.
-
-Contact — data kontak/person.
-
-Opportunity — data peluang penjualan.
-
-Task — pekerjaan yang dapat dikaitkan dengan Opportunity dan User/PIC.
-
-Case — data kasus/tiket CRM.
-
-User / PIC — pengguna yang dapat menjadi penanggung jawab aktivitas.
-
-Relasi data digunakan agar dataset tidak berdiri sendiri. Contoh alur relasinya:
-
-Account
-   │
-   ├── Contact
-   │      │
-   │      └── Opportunity
-   │             │
-   │             └── Task ── User/PIC
-   │
-   └── Opportunity
-
-4. Struktur Project
-
-Struktur utama yang digunakan aplikasi:
+ Project Structure
 
 espo-api-python/
 │
@@ -114,207 +118,34 @@ espo-api-python/
 └── runtime/
     └── app.sqlite3
 
-runtime/ digunakan untuk penyimpanan lokal aplikasi dan tidak perlu di-upload ke Git.
+runtime/ digunakan untuk storage lokal aplikasi dan tidak perlu di-upload ke Git.
 
-5. Fungsi File Utama
+🚀 Quick Start
 
-api.py
-
-Lapisan komunikasi EspoCRM REST API.
-
-Menangani antara lain:
-
-CRUD Contact;
-
-CRUD Account/Opportunity/Task/Case;
-
-pencarian dan pagination;
-
-pengambilan relationship;
-
-pengambilan User/PIC;
-
-advanced query untuk Opportunity dan Task;
-
-generator dataset besar;
-
-pembuatan dataset relasional.
-
-web_app.py
-
-Backend Flask dan route aplikasi web.
-
-Menangani:
-
-dashboard;
-
-health check dan statistik;
-
-data table server-side pagination;
-
-detail entity;
-
-relationship;
-
-data quality scan;
-
-analytics;
-
-route Opportunity;
-
-integrasi dan status Accurate;
-
-trigger sinkronisasi Opportunity.
-
-accurate_integration.py
-
-Client untuk integrasi EspoCRM Opportunity ke Accurate Online.
-
-Menangani:
-
-mapping Opportunity ke Sales Invoice;
-
-customer dan item mapping;
-
-create invoice;
-
-update invoice yang sudah pernah disinkronkan;
-
-idempotency/duplicate prevention;
-
-pencatatan status dan error sync;
-
-penggunaan external ID dari transaksi Accurate.
-
-accurate_oauth.py
-
-Membantu proses OAuth Accurate Online, mengambil access token, memilih database Accurate, dan mendapatkan informasi koneksi/session.
-
-app_store.py
-
-Local persistent store berbasis SQLite untuk status sinkronisasi, state job, dan data pendukung aplikasi.
-
-config.py
-
-Konfigurasi koneksi EspoCRM dan authentication yang digunakan oleh api.py.
-
-templates/index.html, static/css/style.css, static/js/app.js
-
-Frontend dashboard dan web interface.
-
-6. Prasyarat
-
-Sebelum menjalankan project, pastikan sudah tersedia:
-
-Windows.
-
-Python 3.12 atau versi yang kompatibel dengan project.
-
-Docker Desktop.
-
-EspoCRM yang dapat diakses secara lokal.
-
-Accurate Online Developer App apabila fitur Accurate digunakan.
-
-Environment development yang digunakan project ini:
-
-EspoCRM Web : http://localhost:8081
-EspoCRM API : http://localhost:8081/api/v1
-Flask App   : http://localhost:5000
-
-7. Instalasi Project
-
-7.1 Clone repository
-
-Jika project belum ada di komputer:
-
-git clone <URL-REPOSITORY>
-cd espo-api-python-contact
-
-Sesuaikan <URL-REPOSITORY> dengan repository GitHub project.
-
-Jika project sudah ada di komputer, langsung masuk ke folder project.
-
-cd "D:\Folder Tugas Phython Contat - BLTI\espo-api-python"
-
-7.2 Buat virtual environment
-
-python -m venv .venv
-
-Aktifkan:
-
-.\.venv\Scripts\Activate.ps1
-
-Jika berhasil, prompt akan diawali dengan:
-
-(.venv)
-
-7.3 Install dependency
-
-Upgrade pip:
-
-python -m pip install --upgrade pip
-
-Install dependency:
-
-pip install -r requirements.txt
-
-Jika requirements.txt belum tersedia pada checkout tertentu, dependency utama project adalah:
-
-pip install Flask requests python-dotenv
-
-8. Menyiapkan EspoCRM
-
-Project membutuhkan EspoCRM aktif karena Python mengambil data melalui REST API.
-
-Pada environment development yang digunakan:
+1. Jalankan EspoCRM
 
 cd "D:\espocrm_docker"
 docker compose up -d
 
-Periksa container:
-
-docker ps
-
-Kemudian buka:
+Pastikan:
 
 http://localhost:8081
 
-Pastikan EspoCRM dapat dibuka dan login berhasil.
+2. Buat virtual environment
 
-Jika Docker/EspoCRM mati, request API Python akan gagal dengan error connection.
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-9. Konfigurasi EspoCRM
+3. Install dependency
 
-Konfigurasi EspoCRM diletakkan pada:
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 
-config.py
-
-Base API pada environment development:
-
-http://localhost:8081/api/v1
-
-Authentication mengikuti konfigurasi yang digunakan oleh project (API Key apabila tersedia, atau Basic Authentication sesuai konfigurasi config.py).
-
-Jangan memasukkan password atau API key asli ke repository publik.
-
-10. Konfigurasi Accurate Online
-
-Template konfigurasi tersedia di:
-
-.env.example
-
-Project lokal menggunakan file environment:
-
-testumbrella.env
-
-Buat dari template:
+4. Siapkan konfigurasi
 
 Copy-Item .env.example testumbrella.env
 
-Kemudian isi nilai konfigurasi Accurate yang diperlukan.
-
-Variabel yang digunakan project antara lain:
+Contoh konfigurasi Accurate:
 
 ACCURATE_CLIENT_ID=
 ACCURATE_CLIENT_SECRET=
@@ -324,76 +155,73 @@ ACCURATE_SCOPE=
 ACCURATE_CUSTOMER_NO=
 ACCURATE_SYNC_WORKER=false
 
-Jangan menaruh nilai secret asli di README, GitHub, atau .env.example.
+Jangan commit secret, token, password, atau session ID.
 
-File credential/session lokal sudah dimasukkan ke .gitignore.
+5. Jalankan Flask
 
-11. Menjalankan Aplikasi
-
-Urutannya:
-
-Terminal 1 — Jalankan EspoCRM
-
-cd "D:\espocrm_docker"
-docker compose up -d
-
-Terminal 2 — Jalankan Python Web App
-
-cd "D:\Folder Tugas Phython Contat - BLTI\espo-api-python"
-.\.venv\Scripts\Activate.ps1
 python web_app.py
 
-Setelah Flask aktif, buka browser:
+Buka:
 
 http://localhost:5000
 
-12. Mengecek Koneksi
+🔌 Endpoint Penting
 
-Health check:
+Endpoint
 
-http://localhost:5000/api/health
+Fungsi
 
-Endpoint ini mengecek apakah aplikasi Python dapat membaca data dari EspoCRM.
+/
 
-Statistik entity:
+Dashboard utama
 
-http://localhost:5000/api/stats
+/api/health
 
-Status Accurate:
+Cek koneksi EspoCRM
 
-http://localhost:5000/api/accurate/status
+/api/stats
 
-13. Dashboard dan Analytics
+Statistik entity
 
-Dashboard mengambil data dari backend Flask dan EspoCRM.
+/api/accurate/status
 
-Analitik yang disiapkan project mencakup antara lain:
+Status koneksi Accurate
 
-jumlah entity CRM;
+/accurate/connect
 
-distribusi stage/status Opportunity;
+Memulai OAuth Accurate
 
-Opportunity berdasarkan periode;
+/callback
 
-workload PIC dari Opportunity dan Task;
+OAuth callback
 
-status Task;
+ Dashboard & Analytics
 
-Task overdue;
+Mencakup:
 
-informasi Case;
+Distribusi stage Opportunity
 
-kualitas/kelengkapan Contact;
+Nilai Opportunity per stage
 
-kondisi relationship data.
+Opportunity berdasarkan periode
 
-Untuk mengurangi beban saat dataset besar, analytics menggunakan cache dan pengambilan data di backend.
+Workload PIC
 
-14. Data Table dan Pagination
+Status Task
 
-Data table tidak memuat seluruh 10.000+ record ke browser.
+Overdue Task
 
-Backend memakai parameter seperti:
+Case
+
+Contact data quality
+
+Relationship health
+
+Analytics diproses di backend dan menggunakan cache agar browser tetap ringan.
+
+ Server-side Data Handling
+
+Table menggunakan pagination server-side:
 
 page
 page_size
@@ -401,45 +229,21 @@ search
 sort
 order
 
-dan filter yang sesuai entity.
+Opportunity juga mendukung filter:
 
-Contoh Opportunity dapat difilter berdasarkan:
+Search
+Stage
+PIC / User
+Priority
+Account
+Contact
+Sort / Order
 
-Search;
+Browser hanya menerima halaman yang sedang dibuka, sehingga dataset 10.000+ record tetap lebih ringan.
 
-Stage;
+ Large Dataset Testing
 
-PIC/User;
-
-Priority;
-
-Account;
-
-Contact;
-
-Sort dan order.
-
-Task mendukung filter seperti:
-
-Search;
-
-Status;
-
-Priority;
-
-PIC/User;
-
-Parent Opportunity;
-
-Overdue.
-
-Pendekatan ini membuat browser hanya menerima data pada halaman yang sedang dibuka.
-
-15. Data Besar 10.000+ Record
-
-api.py menyediakan generator dataset besar untuk pengujian.
-
-Fungsi utama:
+Generator tersedia di api.py:
 
 generate_large_accounts()
 generate_large_contacts()
@@ -447,7 +251,7 @@ generate_large_opportunities()
 generate_large_tasks()
 generate_large_crm_dataset()
 
-Orchestrator dataset besar membuat data secara berurutan:
+Alur:
 
 Account
    ↓
@@ -457,197 +261,92 @@ Opportunity
    ↓
 Task
 
-Relationship menggunakan ID data yang sudah dibuat/tersedia sehingga data antar-module dapat saling berelasi.
-
-Untuk pengujian awal, jangan langsung membuat 10.000 record. Gunakan jumlah kecil terlebih dahulu, misalnya:
+Uji kecil dulu
 
 python -c "import api; print(api.generate_large_crm_dataset(account_count=100, contact_count=100, opportunity_count=100, task_count=100))"
 
-Setelah alurnya sudah dipastikan benar, jumlah dapat dinaikkan sesuai kebutuhan pengujian.
+Setelah alur valid, jumlah record dapat dinaikkan sesuai kebutuhan.
 
-Contoh target sesuai requirement:
+ Accurate Online Integration
 
-python -c "import api; print(api.generate_large_crm_dataset(account_count=10000, contact_count=10000, opportunity_count=10000, task_count=10000))"
-
-Pembuatan dataset sebesar ini dapat memerlukan waktu dan request API dalam jumlah besar.
-
-Task membutuhkan User/PIC aktif pada EspoCRM karena assignedUser digunakan dalam data Task.
-
-16. Integrasi Opportunity → Accurate
-
-Alur sinkronisasi:
+Alurnya:
 
 Opportunity EspoCRM
         │
         ▼
-Stage = Closed Won?
+   Stage = Closed Won?
         │
         ▼
-Validasi data
+   Validasi + Mapping
         │
-        ▼
-Mapping Customer / Item / Amount / Date
+        ├── Customer
+        ├── Item
+        ├── Amount
+        └── Close Date
         │
         ▼
 Accurate Sales Invoice
         │
         ▼
-Simpan external ID + status sync
+External ID + Sync State
 
-Mapping utama meliputi:
+Sync behavior
 
-Opportunity ID → identitas sumber/external reference;
+Create
 
-Opportunity Name → reference/description;
+Belum pernah sync
+      ↓
+CREATE Invoice
 
-Account/customer → customer Accurate;
+Skipped
 
-item Opportunity/default item → item Accurate;
-
-Amount → unit price/total sesuai detail yang dikirim;
-
-Close Date → transaction date;
-
-currency → nilai currency yang tersedia dari Opportunity/configuration.
-
-17. Aturan Sinkronisasi Accurate
-
-Untuk Opportunity yang belum pernah disinkronkan:
-
-belum ada external ID
-        ↓
-CREATE Sales Invoice
-
-Untuk Opportunity yang sama dan tidak berubah:
-
-sudah pernah sync
+Sudah pernah sync
 + data tidak berubah
-        ↓
+      ↓
 SKIPPED
 
-Untuk Opportunity yang sudah pernah disinkronkan tetapi nilainya berubah:
+Update
 
-sudah pernah sync
+Sudah pernah sync
 + data berubah
-        ↓
-UPDATE Sales Invoice
+      ↓
+UPDATE Invoice
 
-Jika validasi atau request gagal:
+Failure
 
-FAILED / FAILED_VALIDATION
+Validation / request gagal
+      ↓
+FAILED
 
-Status dan error dicatat pada local application store.
-
-Project juga mempertahankan detail ID saat melakukan update invoice agar detail yang sudah ada diperbarui, bukan dibuat sebagai line baru yang menyebabkan total berlipat.
-
-18. Automatic Sync dan Worker
-
-Project memiliki dua mekanisme:
-
-Mutation route
-
-Ketika Opportunity diperbarui melalui route aplikasi Python dan hasil akhirnya menjadi:
-
-Closed Won
-
-aplikasi dapat langsung memanggil sinkronisasi Accurate untuk Opportunity tersebut.
+Opportunity yang masih Proposal, Negotiation, dan stage non-Closed Won tidak dikirim sebagai invoice.
 
 Background worker
 
-Worker scanning Opportunity Closed Won historis tersedia tetapi OFF secara default:
+Default:
 
 ACCURATE_SYNC_WORKER=false
 
-Worker tidak disarankan dinyalakan sembarangan pada dataset besar karena dapat memproses Opportunity lama yang sebenarnya tidak dimaksudkan untuk dikirim ke Accurate.
+Worker historis tersedia, tetapi sebaiknya tidak diaktifkan sembarangan pada dataset besar.
 
-19. OAuth Accurate
+OAuth Accurate
 
-Jika koneksi Accurate belum tersedia, route utama OAuth adalah:
+Mulai OAuth:
 
 http://localhost:5000/accurate/connect
 
-Callback yang digunakan:
+Callback:
 
 http://localhost:5000/callback
 
-Callback tersebut harus sama dengan callback yang didaftarkan pada Accurate Developer.
-
-Setelah proses OAuth selesai, status koneksi dapat diperiksa melalui:
+Cek status:
 
 http://localhost:5000/api/accurate/status
 
-20. Troubleshooting
+Redirect URI harus sama dengan konfigurasi Accurate Developer.
 
-A. EspoCRM tidak terhubung
+ Security
 
-Cek Docker:
-
-docker ps
-
-Jika perlu jalankan lagi:
-
-cd "D:\espocrm_docker"
-docker compose up -d
-
-Lalu tes:
-
-http://localhost:8081
-
-B. Flask tidak mau start
-
-Pastikan virtual environment aktif:
-
-.\.venv\Scripts\Activate.ps1
-
-Kemudian:
-
-python web_app.py
-
-C. Port 5000 sudah digunakan
-
-Hentikan Flask instance lama dengan:
-
-CTRL + C
-
-Lalu jalankan kembali:
-
-python web_app.py
-
-D. Accurate belum terhubung
-
-Periksa:
-
-http://localhost:5000/api/accurate/status
-
-Kemudian cek konfigurasi:
-
-testumbrella.env tersedia;
-
-Client ID/Client Secret benar;
-
-Redirect URI benar;
-
-database alias benar;
-
-scope sesuai permission aplikasi;
-
-customer/item yang dipetakan tersedia di Accurate.
-
-E. Task gagal dibuat
-
-Pastikan EspoCRM memiliki User/PIC aktif.
-
-Task membutuhkan assignedUser sehingga generator Task tidak dapat bekerja jika tidak ada User/PIC yang dapat digunakan.
-
-F. Detail Opportunity bermasalah
-
-Detail Opportunity dirancang agar data utama tetap bisa ditampilkan walaupun salah satu relationship endpoint tidak tersedia pada instance EspoCRM.
-
-Jika terjadi error, cek endpoint dan relationship yang gagal dari response Flask/API.
-
-21. Keamanan
-
-Jangan pernah commit atau upload file yang berisi:
+Jangan commit:
 
 testumbrella.env
 accurate_token.json
@@ -655,51 +354,70 @@ accurate_connection.json
 accurate_sync.json
 accurate_oauth_debug.txt
 
-Jangan menaruh:
+Jangan masukkan ke repository publik:
 
-Client Secret;
+Client Secret
 
-Access Token;
+Access Token
 
-Session ID;
+Session ID
 
-password EspoCRM;
+Password EspoCRM
 
 API Key
 
-ke README atau repository publik.
+Troubleshooting
 
-22. Git / GitHub
+EspoCRM tidak terhubung
 
-Cek perubahan:
+docker ps
+cd "D:\espocrm_docker"
+docker compose up -d
 
-git status
+Flask tidak start
 
-Tambahkan file project yang memang berubah:
+.\.venv\Scripts\Activate.ps1
+python web_app.py
 
-git add <nama-file>
+Port 5000 sudah digunakan
 
-Commit:
+Hentikan instance lama dengan:
 
-git commit -m "Update application"
+CTRL + C
 
-Push:
+Accurate belum terhubung
 
-git push
+Periksa:
 
-Cek kembali:
+testumbrella.env
 
-git status
+Client ID / Client Secret
 
-Kondisi bersih ditandai dengan:
+Redirect URI
 
-nothing to commit, working tree clean
+Database alias
 
-Jangan menggunakan git add . tanpa memeriksa status dan .gitignore, terutama karena project mempunyai file environment dan credential lokal.
+Scope
 
-23. Quick Start
+Customer / Item mapping
 
-Untuk menjalankan project sehari-hari:
+ Project Status
+
+Prototype — Active Development
+
+Project ini dibuat untuk menunjukkan:
+
+CRM Data
+   +
+Relationship
+   +
+Large Dataset
+   +
+Analytics
+   +
+Accurate Integration
+
+Fokus utamanya mencakup server-side pagination, filtering, relationship data, analytics, large dataset testing, idempotency, update synchronization, dan error handling.
 
 Terminal 1
 
@@ -715,23 +433,3 @@ python web_app.py
 Buka:
 
 http://localhost:5000
-
-Status Project
-
-Project ini berfungsi sebagai prototype/internship application untuk menunjukkan:
-
-pengelolaan data CRM dengan jumlah besar;
-
-relationship antar-module EspoCRM;
-
-server-side pagination dan filtering;
-
-dashboard dan analytics;
-
-data quality monitoring;
-
-pembuatan dataset besar untuk pengujian;
-
-integrasi Opportunity EspoCRM → Accurate Online;
-
-idempotency, update sync, dan error handling.
