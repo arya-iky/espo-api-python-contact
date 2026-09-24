@@ -21,3 +21,9 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+
+# Local files
+COPY_INSTRUCTIONS.txt
+Link Github Dimas.txt
+REPLACE_AND_ADD.txt
+runtime/
